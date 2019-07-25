@@ -49,9 +49,9 @@ void dfs(int cnt, int num)
 		for (int t = n - 1; t >= 0; t--){ // time
 			inf_v_3.clear();
 			for (int k = 0; k < 3; k++){ // archer
+				inf_v.clear();
 				for (int i = t; i > t - d; i--){ // y
 					if (i >= 0){
-						inf_v.clear();
 						for (int j = archer_pos[k] - d + 1; j <= archer_pos[k] + d - 1; j++){ // x
 							if (j >= 0 && j < m){
 								if (nfiled_copy[i][j]){
@@ -63,18 +63,14 @@ void dfs(int cnt, int num)
 						}
 					}
 					if (temp)
-					{
-						inf_v_2.clear();
-						sort(inf_v.begin(), inf_v.end(), compare);
-						
+					{	
 						if (inf_v.size() == 1){
 							inf_v_3.push_back(inf_v[0]);
-							//nfiled_copy[inf_v[0].y][inf_v[0].x] = 0;
-							temp = 0;
 						}
 						
 						if (inf_v.size() > 1 && inf_v[0].val == inf_v[1].val){
-	
+							sort(inf_v.begin(), inf_v.end(), compare);
+							inf_v_2.clear();
 							if (inf_v.size() == 2){
 								inf_v_2.push_back(inf_v[0]);
 								inf_v_2.push_back(inf_v[1]);
@@ -92,17 +88,17 @@ void dfs(int cnt, int num)
 							}
 							sort(inf_v_2.begin(), inf_v_2.end(), compare2);
 							inf_v_3.push_back(inf_v_2[0]);
-							//nfiled_copy[inf_v_2[0].y][inf_v_2[0].x] = 0;
 						}
 						
 						if (inf_v.size() > 1 && inf_v[0].val != inf_v[1].val){
+							sort(inf_v.begin(), inf_v.end(), compare);
 							inf_v_3.push_back(inf_v[0]);
-							//nfiled_copy[inf_v[0].y][inf_v[0].x] = 0;
 						}
 						temp = 0;
 						break;
 					}
 				}
+
 			}
 			for (int i = 0; i < inf_v_3.size(); i++){
 				if (nfiled_copy[inf_v_3[i].y][inf_v_3[i].x]){
@@ -114,6 +110,7 @@ void dfs(int cnt, int num)
 
 		if (enemy > nRet)
 			nRet = enemy;
+		
 		return;
 	}
 
