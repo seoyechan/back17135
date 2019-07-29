@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <vector>
 #include <algorithm>
+#include <queue>
 
 #define _CRT_SECURE_NO_WARNINGS
 #pragma warning(disable:4996)
@@ -9,8 +10,12 @@ using namespace std;
 
 int nfiled[16][16];
 int nfiled_copy[16][16];
+int nvisit[17][17];
 int archer_pos[3];
 int n, m, d, nRet;
+
+int dirx[] = { -1, 0, 1 };
+int diry[] = { 0, -1, 0 };
 
 typedef struct inf{
 	int x, y, val;
@@ -36,77 +41,72 @@ void dfs(int cnt, int num)
 	if (cnt == 3)
 	{
 		int enemy = 0;
+		vector<inf>temp_v;
 		
-		for (int i = 0; i < n; i++)
-			for (int j = 0; j < m; j++)
+		for (int i = 0; i < n; i++){
+			for (int j = 0; j < m; j++){
 				nfiled_copy[i][j] = nfiled[i][j];
+			}
+		}
 
-		int temp = 0;
-		int min_temp = 0;
-		vector <inf> inf_v;
-		vector <inf> inf_v_2;
-		vector <inf> inf_v_3;
-		for (int t = n - 1; t >= 0; t--){ // time
-			inf_v_3.clear();
-			for (int k = 0; k < 3; k++){ // archer
-				inf_v.clear();
-				for (int i = t; i > t - d; i--){ // y
-					if (i >= 0){
-						for (int j = archer_pos[k] - d + 1; j <= archer_pos[k] + d - 1; j++){ // x
-							if (j >= 0 && j < m){
-								if (nfiled_copy[i][j]){
-									min_temp = chan_abs(j - archer_pos[k]) + chan_abs(i - t);
-									inf_v.push_back({ j, i, min_temp });
-									temp = 1;
-								}
-							}
-						}
-					}
-					if (temp)
-					{	
-						if (inf_v.size() == 1){
-							inf_v_3.push_back(inf_v[0]);
-						}
-						
-						if (inf_v.size() > 1 && inf_v[0].val == inf_v[1].val){
-							sort(inf_v.begin(), inf_v.end(), compare);
-							inf_v_2.clear();
-							if (inf_v.size() == 2){
-								inf_v_2.push_back(inf_v[0]);
-								inf_v_2.push_back(inf_v[1]);
-							}
-							else{
-								for (int i = 0; i < inf_v.size() - 1; i++){
-									if (inf_v[i].val == inf_v[i + 1].val){
-										inf_v_2.push_back(inf_v[i]);
-									}
-									else{
-										inf_v_2.push_back(inf_v[i]);
-										break;
-									}
-								}
-							}
-							sort(inf_v_2.begin(), inf_v_2.end(), compare2);
-							inf_v_3.push_back(inf_v_2[0]);
-						}
-						
-						if (inf_v.size() > 1 && inf_v[0].val != inf_v[1].val){
-							sort(inf_v.begin(), inf_v.end(), compare);
-							inf_v_3.push_back(inf_v[0]);
-						}
-						temp = 0;
-						break;
+		for (int t = n; t >= 0; t--){
+			temp_v.clear();
+			for (int k = 0; k < 3; k++){
+				queue <inf> bfs_q;
+				inf cur_pos = { 0, };
+				int nextx, nexty = 0;
+				bool flag = false;
+				bfs_q.push({ archer_pos[k], t, 0 });
+				nvisit[t][archer_pos[k]] = 1;
+				
+				for (int i = 0; i <= n; i++){
+					for (int j = 0; j <= m; j++){
+						nvisit[i][j] = 0;
 					}
 				}
 
+				while (!bfs_q.empty()){
+					cur_pos = bfs_q.front();
+					bfs_q.pop();
+
+					if (cur_pos.val >= d) continue;
+
+					for (int dir = 0; dir < 3; dir++){
+						nextx = cur_pos.x + dirx[dir];
+						nexty = cur_pos.y + diry[dir];
+
+						if (nexty == t) continue;
+
+						if (nextx >= 0 && nextx < m && nexty >= 0 && nexty < m && !nvisit[nexty][nextx]){
+							if (nfiled_copy[nexty][nextx])
+							{
+								temp_v.push_back({ nextx, nexty, ++cur_pos.val });
+								cur_pos.val--;
+								flag = true;
+								break;
+							}
+							else
+							{
+								bfs_q.push({ nextx, nexty, ++cur_pos.val });
+								nvisit[nexty][nextx] = 1;
+								cur_pos.val--;
+							}
+
+						}
+
+					}
+					if (flag) break;
+				}
 			}
-			for (int i = 0; i < inf_v_3.size(); i++){
-				if (nfiled_copy[inf_v_3[i].y][inf_v_3[i].x]){
-					nfiled_copy[inf_v_3[i].y][inf_v_3[i].x] = 0;
-					enemy++; 
+
+			for (int e = 0; e < temp_v.size(); e++){
+				if (nfiled_copy[temp_v[e].y][temp_v[e].x]){
+					nfiled_copy[temp_v[e].y][temp_v[e].x] = 0;
+					enemy++;
 				}
 			}
 		}
+
 
 		if (enemy > nRet)
 			nRet = enemy;
