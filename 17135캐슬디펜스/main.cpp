@@ -77,7 +77,7 @@ void dfs(int cnt, int num)
 
 						if (nexty == t) continue;
 
-						if (nextx >= 0 && nextx < m && nexty >= 0 && nexty < m && !nvisit[nexty][nextx]){
+						if (nextx >= 0 && nextx < m && nexty >= 0 && nexty < n && !nvisit[nexty][nextx]){
 							if (nfiled_copy[nexty][nextx])
 							{
 								temp_v.push_back({ nextx, nexty, ++cur_pos.val });
